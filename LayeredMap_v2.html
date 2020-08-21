@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>Website title goes here</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <!--Load in the Leaflet css style guide if needed-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+  <!--Load in the Google fonts if you'd like to pick a new font-->
+  <!--To see other Google fonts, visit https://fonts.google.com/-->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+
+  <style>
+    /*These are style commands that affect where the map fits on the page, the page background color, font sizes, etc */
+    body {
+      margin: 0;
+      padding: 0;
+      background: rgb(42, 42, 42);
+      font-family: "Lato", sans-serif;
+      font-size: 100%;
+      font-weight: 300;
+      color: rgb(172, 172, 172);
+    }
+
+    header,
+    footer,
+    section {
+      padding: 6px 10%;
+      margin: 0 auto;
+      width: 80%
+    }
+
+    .info {
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      color: black;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
+
+    .info h4 {
+      margin: 0 0 5px;
+      color: black;
+    }
+
+    .legend {
+      text-align: left;
+      line-height: 18px;
+      color: black;
+    }
+
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 0.7;
+    }
+
+    h1 {
+      display: inline-block;
+      margin-right: 20px;
+      color: black;
+      font-size: 3.5em;
+      font-weight: 700;
+    }
+
+    h2 {
+      display: inline-block;
+      color: #94d8ff;
+      letter-spacing: 0.05em;
+      margin-top: 0px;
+      font-weight: 300;
+      text-transform: uppercase;
+      /*  Stack text shadows.  */
+      text-shadow: 0 0 30px #0098b3, 0 0 40px #00c2e4, 0 0 50px #00c2e4, 0 0 80px #00c2e4;
+    }
+
+    /*This sets up how the map appears on the webpage */
+    #map {
+      width: 80%;
+      height: 540px;
+      margin: 10px auto;
+    }
+
+
+    p {
+      font-size: 1em;
+      color: rgba(170, 170, 170);
+      font-weight: 300;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+
+<!--Now this section of code sets up the website-->
+
+<body>
+  <header>
+    <h1>Nitish's webpage</h1>
+    <h2>Interactive Maps showing mortalities by state - Heart Disease, Stroke, Cancer </h2>
+  </header>
+
+  <!--Now the div id sets up where the map goes-->
+  <div id='map'></div>
+
+  <footer>
+    <p>This is all footer information and text that you can change.</p>
+    <p>More text space that can be edited</p>
+  </footer>
+
+  <!--Now you load in Leaflet and any other datasets -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+  <!--Dataset One-->
+  <script src="heart-disease-mortality-rate.js"></script>
+  <!--Dataset Two-->
+  <script src="stroke-mortality-rate.js"></script>
+  <!--Dataset Three-->
+  <script src="cancer-mortality-rate.js"></script>
+
+
+  <script>
+    //And here is the section where the Javascript mapping materials are entered
+    //This sets up your map and which coordinates are used for the center of the map and how the zoom is set
+    var map = L.map('map', {
+      center: [36, -94],
+      zoom: 4,
+    });
+
+    //Here's the basemap information
+    var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
+    });
+
+    tiles.addTo(map);
+
+    //to show state info when hovering over
+    var info = L.control();
+
+    info.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info');
+      this.update();
+      return this._div;
+    };
+
+    info.update = function (props) {
+      this._div.innerHTML = '<h4>Mortality Rate of Given Condition by State per 100,000</h4>' + (props ?
+        '<b>' + props.name + '</b><br />' + props['State Data'] + ' people  <sup></sup>'
+        : 'Hover over a state');
+    };
+
+    info.addTo(map);
+
+
+
+    //this is a highlight feature function that sets up what happens when an individual state is highlighted
+
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+      //this is where information is being sent to the info.update for the box that shows the data for a given state
+      info.update(layer.feature.properties);
+    }
+
+    //this function zooms in a state when clicked
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+
+    //this is an expanded onEachFeature function that performs the following steps
+    //first when mouseover occurs, the information is sent to the highlightFeature and zoomToFeature functions
+    function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightFeature,
+        click: zoomToFeature
+      });
+      //within this same function, when mouseover occurs, the border of the state changes color to show the state has been highlighted
+      layer.on('mouseover', function () {
+        this.setStyle({
+          color: "black",
+          weight: 5
+        });
+      });
+      //when the mouse is moved away from the state, the border color returns to the previous color
+      layer.on('mouseout', function () {
+        this.setStyle({
+          color: "white",
+          weight: 1
+        });
+      });
+    }
+
+    //Now you can create three layers, one for each dataset
+    var LayerNameOne = L.geoJson(heartAttackData, {
+      style: function (feature) {
+        return {
+          //This can be modified, we can build some additional functions to handle each of the color ranges
+          color: 'white',
+          fillColor: LayerNameOneColors(feature.properties['State Data']),
+          weight: 1,
+          stroke: 1,
+          fillOpacity: .8,
+        }
+      },
+      //here the onEachFeature data is sent to a function that shares the same name, I think the function name could be changed for all instances and the code would still run
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    var LayerNameTwo = L.geoJson(strokeData, {
+      style: function (feature) {
+        return {
+          //This can be modified, we can build some additional functions to handle each of the color ranges
+          color: 'white',
+          fillColor: LayerNameTwoColors(feature.properties['State Data']),
+          weight: 1,
+          stroke: 1,
+          fillOpacity: .8,
+        }
+      },
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    var LayerNameThree = L.geoJson(cancerData, {
+      style: function (feature) {
+        return {
+          //This can be modified, we can build some additional functions to handle each of the color ranges
+          color: 'white',
+          fillColor: LayerNameThreeColors(feature.properties['State Data']),
+          weight: 1,
+          stroke: 1,
+          fillOpacity: .8,
+        }
+      },
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    //sets up the layers to be listed
+    var sourcesLayers = {
+      "<b style='color:#1f78b4'>Heart Disease</b>": LayerNameOne,
+      "<b style='color:#a6cee3'>Stroke</b>": LayerNameTwo,
+      "<b style='color:#ffff99; text-shadow: 0px 0px 1px #333;'>Cancer</b>": LayerNameThree
+    }
+
+    //creates the layer selection tool
+    L.control.layers(sourcesLayers, null, { collapsed: false }).addTo(map);
+
+
+    //generates the colors for the map
+    //note that some of the layers have provinces in Canada with null data
+    //one layer does not have the Canada shapefiles so the borders do not appear on the map
+    //one option would be to remove these polygons from the .js file so the null data are not read into the map
+    function LayerNameOneColors(d) {
+      return d > 260 ? '#800026' :
+        d > 240 ? '#BD0026' :
+          d > 220 ? '#E31A1C' :
+            d > 200 ? '#FC4E2A' :
+              d > 180 ? '#FD8D3C' :
+                d > 160 ? '#FEB24C' :
+                  d > 140 ? '#FED976' :
+                    d > 100 ? '#FFEDA0' :
+                      '#000000';
+    }
+
+    function LayerNameTwoColors(d) {
+      return d > 60 ? '#800026' :
+        d > 55 ? '#BD0026' :
+          d > 50 ? '#E31A1C' :
+            d > 45 ? '#FC4E2A' :
+              d > 40 ? '#FD8D3C' :
+                d > 35 ? '#FEB24C' :
+                  d > 20 ? '#FFEDA0' :
+                    '#000000';
+    }
+
+    function LayerNameThreeColors(d) {
+      return d > 210 ? '#800026' :
+        d > 200 ? '#BD0026' :
+          d > 190 ? '#E31A1C' :
+            d > 180 ? '#FC4E2A' :
+              d > 170 ? '#FD8D3C' :
+                d > 160 ? '#FEB24C' :
+                  d > 150 ? '#FED976' :
+                    d > 140 ? '#FFEDA0' :
+                      '#000000';
+    }
+
+  </script>
+
+</body>
+
+</html>

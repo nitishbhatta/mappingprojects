@@ -3,7 +3,7 @@
 
 <head>
   <meta charset=utf-8 />
-  <title>Website title goes here</title>
+  <title>Interactive Layered Map</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <!--Load in the Leaflet css style guide if needed-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
@@ -107,8 +107,16 @@
   <div id='map'></div>
 
   <footer>
-    <p>This is all footer information and text that you can change.</p>
-    <p>More text space that can be edited</p>
+    <p>This layered map shows the death rates per 100,000 for each U.S. state. 
+      The conditions avalaible to choose from are heart disease, stroke, and cancer.
+      Basemap from Leaflet.
+      QJIS used to merge CDC data with map.
+      Code edited and veiwed using Visual Studio Code.
+      All data was collected from <a href="https://www.cdc.gov/" target="_blank">CDC Website</a>.
+      US State Map from <a href="https://www.naturalearthdata.com/downloads/50m-cultural-vectors/" target="_blank">Natural Earth Data</a>, Admin 1 – States, provinces.
+
+    </p>
+    <p></p>
   </footer>
 
   <!--Now you load in Leaflet and any other datasets -->
@@ -244,9 +252,9 @@
 
     //sets up the layers to be listed
     var sourcesLayers = {
-      "<b style='color:#1f78b4'>Heart Disease</b>": LayerNameOne,
-      "<b style='color:#a6cee3'>Stroke</b>": LayerNameTwo,
-      "<b style='color:#ffff99; text-shadow: 0px 0px 1px #333;'>Cancer</b>": LayerNameThree
+      "<b style='color:#ef3b2c'>Heart Disease</b>": LayerNameOne,
+      "<b style='color:#4292c6'>Stroke</b>": LayerNameTwo,
+      "<b style='color:#41ab5d'>Cancer</b>": LayerNameThree
     }
 
     //creates the layer selection tool
@@ -258,37 +266,36 @@
     //one layer does not have the Canada shapefiles so the borders do not appear on the map
     //one option would be to remove these polygons from the .js file so the null data are not read into the map
     function LayerNameOneColors(d) {
-      return d > 260 ? '#800026' :
-        d > 240 ? '#BD0026' :
-          d > 220 ? '#E31A1C' :
-            d > 200 ? '#FC4E2A' :
-              d > 180 ? '#FD8D3C' :
-                d > 160 ? '#FEB24C' :
-                  d > 140 ? '#FED976' :
-                    d > 100 ? '#FFEDA0' :
+      return d > 260 ? '#99000d' :
+        d > 240 ? '#cb181d' :
+          d > 220 ? '#ef3b2c' :
+            d > 200 ? '#fb6a4a' :
+              d > 180 ? '#fc9272' :
+                d > 160 ? '#fcbba1' :
+                  d > 140 ? '#fee0d2' :
+                    d > 100 ? '#fff5f0' :
                       '#000000';
     }
 
     function LayerNameTwoColors(d) {
-      return d > 60 ? '#800026' :
-        d > 55 ? '#BD0026' :
-          d > 50 ? '#E31A1C' :
-            d > 45 ? '#FC4E2A' :
-              d > 40 ? '#FD8D3C' :
-                d > 35 ? '#FEB24C' :
-                  d > 20 ? '#FFEDA0' :
+      return d > 60 ? '#084594' :
+        d > 55 ? '#2171b5' :
+          d > 50 ? '#4292c6' :
+            d > 45 ? '#6baed6' :
+              d > 40 ? '#9ecae1' :
+                d > 35 ? '#c6dbef' :
+                  d > 20 ? '#eff3ff' :
                     '#000000';
     }
 
     function LayerNameThreeColors(d) {
-      return d > 210 ? '#800026' :
-        d > 200 ? '#BD0026' :
-          d > 190 ? '#E31A1C' :
-            d > 180 ? '#FC4E2A' :
-              d > 170 ? '#FD8D3C' :
-                d > 160 ? '#FEB24C' :
-                  d > 150 ? '#FED976' :
-                    d > 140 ? '#FFEDA0' :
+      return d > 210 ? '#005a32' :
+        d > 200 ? '#238b45' :
+          d > 190 ? '#41ab5d' :
+            d > 180 ? '#74c476' :
+              d > 170 ? '#a1d99b' :
+                d > 160 ? '#c7e9c0' :
+                  d > 140 ? '#e5f5e0' :
                       '#000000';
     }
 
